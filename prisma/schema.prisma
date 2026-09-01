@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  categoryId  String
+  name        String
+  brand       String?
+  model       String?
+  description String?
+  slug        String           @unique
+
+  category  Category         @relation(fields: [categoryId], references: [id])
+  variants  ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  sku       String   @unique
+  price     Decimal
+
+  product    Product           @relation(fields: [productId], references: [id])
+  attributes VariantAttribute[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model Attribute {
+  id        String            @id @default(cuid())
+  name      String
+  slug      String            @unique
+  variants  VariantAttribute[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VariantAttribute {
+  variantId   String
+  attributeId String
+  value       String
+
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  attribute Attribute      @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+  @@id([variantId, attributeId])
+  @@index([attributeId])
+}

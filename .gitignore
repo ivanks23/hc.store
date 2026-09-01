@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Local agent/tool files
+.agents/
+.claude/
+.cursor/
+.devin/
+.windsurf/
+skills-lock.json
+
+# Local/generated files
+emit-error.json
+hcs.zip
