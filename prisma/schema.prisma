@@ -69,3 +69,18 @@ model VariantAttribute {
   @@id([variantId, attributeId])
   @@index([attributeId])
 }
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
