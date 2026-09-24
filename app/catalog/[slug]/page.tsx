@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AddToCartButton from "./add-to-cart-button";
 
 type ProductAttribute = {
   value: string;
@@ -179,12 +180,15 @@ export default async function ProductPage({
               </div>
             )}
 
-            <button
-              type="button"
-              className="mt-8 w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
-            >
-              Agregar al carrito
-            </button>
+            {firstVariant && (
+              <AddToCartButton
+                variantId={firstVariant.id}
+                productId={product.id}
+                name={product.name}
+                price={Number(firstVariant.price)}
+                image={mainImage?.url ?? null}
+              />
+            )}
           </div>
         </div>
       </div>
