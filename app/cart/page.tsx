@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useCartStore } from "@/lib/store/cart-store";
@@ -11,11 +12,112 @@ export default function CartPage() {
     (state) => state.updateQuantity,
   );
   const clearCart = useCartStore((state) => state.clearCart);
+  const setItems = useCartStore((state) => state.setItems);
+
+  const [isValidating, setIsValidating] = useState(true);
+  const [validationError, setValidationError] = useState<string | null>(
+    null,
+  );
+
+  const cartKey = items
+    .map((item) => `${item.variantId}:${item.quantity}`)
+    .join("|");
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setIsValidating(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function validateCart() {
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const response = await fetch("/api/cart/validate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              variantId: item.variantId,
+              quantity: item.quantity,
+            })),
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ?? "No se pudo validar el carrito",
+          );
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const validatedItems = data.items.map(
+          (item: {
+            variantId: string;
+            productId: string;
+            name: string;
+            price: string;
+            image: string | null;
+            quantity: number;
+          }) => ({
+            variantId: item.variantId,
+            productId: item.productId,
+            name: item.name,
+            price: Number(item.price),
+            image: item.image,
+            quantity: item.quantity,
+          }),
+        );
+
+        setItems(validatedItems);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
+        setValidationError(
+          error instanceof Error
+            ? error.message
+            : "No se pudo validar el carrito",
+        );
+      } finally {
+        if (!cancelled) {
+          setIsValidating(false);
+        }
+      }
+    }
+
+    validateCart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cartKey, setItems]);
 
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
+
+  if (isValidating) {
+    return (
+      <main className="min-h-screen bg-gray-50 px-4 py-10">
+        <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-10 text-center">
+          <p className="text-gray-600">Validando tu carrito...</p>
+        </div>
+      </main>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -56,6 +158,12 @@ export default function CartPage() {
             Vaciar carrito
           </button>
         </div>
+
+        {validationError && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+            {validationError}
+          </div>
+        )}
 
         <div className="space-y-4">
           {items.map((item) => (

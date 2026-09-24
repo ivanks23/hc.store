@@ -12,11 +12,11 @@ export type CartItem = {
 
 type CartStore = {
   items: CartItem[];
-
   addItem: (item: CartItem) => void;
   removeItem: (variantId: string) => void;
   updateQuantity: (variantId: string, quantity: number) => void;
   clearCart: () => void;
+  setItems: (items: CartItem[]) => void;
 };
 
 export const useCartStore = create<CartStore>()(
@@ -70,6 +70,7 @@ export const useCartStore = create<CartStore>()(
     })),
 
       clearCart: () => set({ items: [] }),
+      setItems: (items) => set({ items }),
     }),
     {
       name: "hypercode-cart",
