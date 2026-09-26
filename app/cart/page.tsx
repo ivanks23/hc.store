@@ -250,12 +250,13 @@ export default function CartPage() {
             <span>${total.toFixed(2)}</span>
           </div>
 
-          <button
-            type="button"
-            className="mt-6 w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
-          >
-            Continuar con la compra
-          </button>
+        <Link
+          href="/checkout"
+          className="mt-6 block w-full rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
+        >
+          Continuar con la compra
+        </Link>
+        
         </div>
       </div>
     </main>
