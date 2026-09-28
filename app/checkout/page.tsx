@@ -21,7 +21,8 @@ export default function CheckoutPage() {
   const { data: session } = useSession();
 
   const items = useCartStore((state) => state.items);
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -60,10 +61,57 @@ export default function CheckoutPage() {
   const wantsInvoice = watch("wantsInvoice");
   const billingSameAsShipping = watch("billingSameAsShipping");
 
-  function onSubmit(data: CheckoutInput) {
-    console.log("Checkout:", data);
-    setSubmitted(true);
+async function onSubmit(data: CheckoutInput) {
+  setIsSubmitting(true);
+  setSubmitError(null);
+
+  try {
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...data,
+        items: items.map((item) => ({
+          variantId: item.variantId,
+          quantity: item.quantity,
+        })),
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error ?? "No se pudo crear el pedido");
+    }
+
+    const paymentResponse = await fetch(
+      `/api/orders/${result.order.id}/payment`,
+      {
+        method: "POST",
+      },
+    );
+
+    const paymentResult = await paymentResponse.json();
+
+    if (!paymentResponse.ok) {
+      throw new Error(
+        paymentResult.error ?? "No se pudo iniciar el pago",
+      );
+    }
+
+    window.location.href = paymentResult.initPoint;
+  } catch (error) {
+    setSubmitError(
+      error instanceof Error
+        ? error.message
+        : "No se pudo procesar el pedido",
+    );
+  } finally {
+    setIsSubmitting(false);
   }
+}
 
   if (items.length === 0) {
     return (
@@ -617,16 +665,18 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
+              disabled={isSubmitting}
+              className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Revisar pedido
+              {isSubmitting ? "Creando pedido..." : "Revisar pedido"}
             </button>
 
-            {submitted && (
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-700">
-                Los datos del checkout son válidos.
+            {submitError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+                {submitError}
               </div>
             )}
+
           </form>
 
           {/* RESUMEN */}
