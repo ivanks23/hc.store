@@ -72,9 +72,9 @@ export async function POST(
         external_reference: order.id,
 
         back_urls: {
-        success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success`,
-        failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/failure`,
-        pending: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/pending`,
+          success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?orderId=${order.id}`,
+          failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/failure?orderId=${order.id}`,
+          pending: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/pending?orderId=${order.id}`,
         },
 
         },
