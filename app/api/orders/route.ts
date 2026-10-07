@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { orderSchema } from "@/lib/validations/order";
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
 
     const result = orderSchema.safeParse(body);
@@ -68,6 +71,7 @@ export async function POST(request: Request) {
 
     const order = await prisma.order.create({
       data: {
+        userId: session?.user?.id ?? null,
         customerName: data.customerName,
         customerPhone: data.customerPhone,
         customerEmail: data.customerEmail,
