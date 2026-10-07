@@ -55,7 +55,8 @@ export async function POST(request: Request) {
 
     const paymentPayload = JSON.parse(JSON.stringify(payment));
 
-    const paymentRecord = await prisma.payment.upsert({
+    const paymentRecord = await prisma.$transaction(async (tx) => {
+    const paymentRecord = await tx.payment.upsert({
       where: {
         mercadoPagoId: String(payment.id),
       },
@@ -77,14 +78,21 @@ export async function POST(request: Request) {
 
     if (payment.status === "approved" && order.status !== "PAID") {
       for (const orderItem of order.items) {
-        await registerOrderItemSale(orderItem.id);
+        await registerOrderItemSale(orderItem.id, tx);
       }
 
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: "PAID" },
+      await tx.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: "PAID",
+        },
       });
     }
+
+    return paymentRecord;
+  });
 
     console.log("Pago registrado:", {
     paymentId: paymentRecord.mercadoPagoId,

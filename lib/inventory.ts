@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
-
 import { prisma } from "@/lib/prisma";
+
+type PrismaTransaction = Prisma.TransactionClient;
 
 export async function getVariantStock(variantId: string) {
   const result = await prisma.inventoryMovement.aggregate({
@@ -15,9 +16,12 @@ export async function getVariantStock(variantId: string) {
   return result._sum.quantity ?? 0;
 }
 
-export async function registerOrderItemSale(orderItemId: string) {
-  return prisma.$transaction(async (tx) => {
-    const orderItem = await tx.orderItem.findUnique({
+export async function registerOrderItemSale(
+  orderItemId: string,
+  tx?: PrismaTransaction,
+) {
+  const register = async (client: PrismaTransaction) => {
+    const orderItem = await client.orderItem.findUnique({
       where: {
         id: orderItemId,
       },
@@ -27,7 +31,7 @@ export async function registerOrderItemSale(orderItemId: string) {
       throw new Error("OrderItem no encontrado");
     }
 
-    const existingMovement = await tx.inventoryMovement.findUnique({
+    const existingMovement = await client.inventoryMovement.findUnique({
       where: {
         orderItemId,
       },
@@ -38,7 +42,7 @@ export async function registerOrderItemSale(orderItemId: string) {
     }
 
     try {
-      return await tx.inventoryMovement.create({
+      return await client.inventoryMovement.create({
         data: {
           variantId: orderItem.variantId,
           orderItemId: orderItem.id,
@@ -52,7 +56,7 @@ export async function registerOrderItemSale(orderItemId: string) {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === "P2002"
       ) {
-        return tx.inventoryMovement.findUniqueOrThrow({
+        return client.inventoryMovement.findUniqueOrThrow({
           where: {
             orderItemId,
           },
@@ -61,5 +65,11 @@ export async function registerOrderItemSale(orderItemId: string) {
 
       throw error;
     }
-  });
+  };
+
+  if (tx) {
+    return register(tx);
+  }
+
+  return prisma.$transaction(register);
 }
