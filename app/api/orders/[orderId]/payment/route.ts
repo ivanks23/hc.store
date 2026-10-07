@@ -65,6 +65,10 @@ export async function POST(
             currency_id: "MXN",
         })),
 
+        payer: {
+          email: order.customerEmail,
+        },
+
         external_reference: order.id,
 
         back_urls: {
