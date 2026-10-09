@@ -14,27 +14,30 @@ export default function CartPage() {
   const clearCart = useCartStore((state) => state.clearCart);
   const setItems = useCartStore((state) => state.setItems);
 
-  const [isValidating, setIsValidating] = useState(true);
-  const [validationError, setValidationError] = useState<string | null>(
-    null,
-  );
+  const [validationResult, setValidationResult] = useState<{
+    key: string;
+    error: string | null;
+  } | null>(null);
 
-  const cartKey = items
-    .map((item) => `${item.variantId}:${item.quantity}`)
-    .join("|");
+  const cartKey = JSON.stringify(
+    items.map((item) => ({
+      variantId: item.variantId,
+      quantity: item.quantity,
+    })),
+  );
+  const isValidating =
+    items.length > 0 && validationResult?.key !== cartKey;
+  const validationError =
+    validationResult?.key === cartKey ? validationResult.error : null;
 
   useEffect(() => {
-    if (items.length === 0) {
-      setIsValidating(false);
+    if (cartKey === "[]") {
       return;
     }
 
     let cancelled = false;
 
     async function validateCart() {
-      setIsValidating(true);
-      setValidationError(null);
-
       try {
         const response = await fetch("/api/cart/validate", {
           method: "POST",
@@ -42,10 +45,7 @@ export default function CartPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            items: items.map((item) => ({
-              variantId: item.variantId,
-              quantity: item.quantity,
-            })),
+            items: JSON.parse(cartKey),
           }),
         });
 
@@ -82,20 +82,19 @@ export default function CartPage() {
         );
 
         setItems(validatedItems);
+        setValidationResult({ key: cartKey, error: null });
       } catch (error) {
         if (cancelled) {
           return;
         }
 
-        setValidationError(
-          error instanceof Error
-            ? error.message
-            : "No se pudo validar el carrito",
-        );
-      } finally {
-        if (!cancelled) {
-          setIsValidating(false);
-        }
+        setValidationResult({
+          key: cartKey,
+          error:
+            error instanceof Error
+              ? error.message
+              : "No se pudo validar el carrito",
+        });
       }
     }
 
@@ -118,9 +117,9 @@ export default function CartPage() {
 
   if (isValidating) {
     return (
-      <main className="min-h-screen bg-gray-50 px-4 py-10">
-        <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-10 text-center">
-          <p className="text-gray-600">Validando tu carrito...</p>
+      <main className="min-h-screen bg-brand-background px-4 py-10">
+        <div className="mx-auto max-w-4xl rounded-xl border border-brand-border bg-white p-10 text-center">
+          <p className="text-brand-muted">Validando tu carrito...</p>
         </div>
       </main>
     );
@@ -128,19 +127,19 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50 px-4 py-10">
-        <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-10 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
+      <main className="min-h-screen bg-brand-background px-4 py-10">
+        <div className="mx-auto max-w-4xl rounded-xl border border-brand-border bg-white p-10 text-center">
+          <h1 className="text-3xl font-bold text-brand-ink">
             Tu carrito está vacío
           </h1>
 
-          <p className="mt-3 text-gray-600">
+          <p className="mt-3 text-brand-muted">
             Agrega productos desde nuestro catálogo.
           </p>
 
           <Link
             href="/catalog"
-            className="mt-6 inline-block rounded-lg bg-black px-5 py-3 font-medium text-white"
+            className="mt-6 inline-block rounded-lg bg-brand-ink px-5 py-3 font-medium text-white"
           >
             Ir al catálogo
           </Link>
@@ -150,10 +149,10 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
+    <main className="min-h-screen bg-brand-background px-4 py-10">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-brand-ink">
             Carrito
           </h1>
 
@@ -176,9 +175,9 @@ export default function CartPage() {
           {items.map((item) => (
             <article
               key={item.variantId}
-              className="flex gap-5 rounded-xl border border-gray-200 bg-white p-5"
+              className="flex gap-5 rounded-xl border border-brand-border bg-white p-5"
             >
-              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-brand-image-surface">
                 {item.image ? (
                   <img
                     src={item.image}
@@ -186,7 +185,7 @@ export default function CartPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-gray-400">
+                  <div className="flex h-full items-center justify-center text-xs text-brand-placeholder">
                     Sin imagen
                   </div>
                 )}
@@ -194,15 +193,15 @@ export default function CartPage() {
 
               <div className="flex flex-1 flex-col justify-between">
                 <div>
-                  <h2 className="font-semibold text-gray-900">
+                  <h2 className="font-semibold text-brand-ink">
                     {item.name}
                   </h2>
 
-                  <p className="mt-1 text-gray-600">
+                  <p className="mt-1 text-brand-muted">
                     ${item.price.toFixed(2)} c/u
                   </p>
                   {item.availableStock !== undefined && (
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-brand-text-subtle">
                       {item.availableStock > 0
                         ? `${item.availableStock} disponibles`
                         : "Agotado"}
@@ -225,7 +224,7 @@ export default function CartPage() {
                         item.quantity - 1,
                       )
                     }
-                    className="h-8 w-8 rounded border border-gray-300"
+                    className="h-8 w-8 rounded border border-brand-border-strong"
                     aria-label={`Disminuir cantidad de ${item.name}`}
                   >
                     −
@@ -243,7 +242,7 @@ export default function CartPage() {
                         item.quantity + 1,
                       )
                     }
-                    className="h-8 w-8 rounded border border-gray-300"
+                    className="h-8 w-8 rounded border border-brand-border-strong"
                     disabled={
                       item.availableStock !== undefined &&
                       item.quantity >= item.availableStock
@@ -263,14 +262,14 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <p className="font-semibold text-gray-900">
+              <p className="font-semibold text-brand-ink">
                 ${(item.price * item.quantity).toFixed(2)}
               </p>
             </article>
           ))}
         </div>
 
-        <div className="mt-8 rounded-xl border border-gray-200 bg-white p-6">
+        <div className="mt-8 rounded-xl border border-brand-border bg-white p-6">
           <div className="flex items-center justify-between text-lg font-bold">
             <span>Total</span>
             <span>${total.toFixed(2)}</span>
@@ -287,7 +286,7 @@ export default function CartPage() {
         ) : (
           <Link
             href="/checkout"
-            className="mt-6 block w-full rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
+            className="mt-6 block w-full rounded-lg bg-brand-ink px-5 py-3 text-center font-medium text-white"
           >
             Continuar con la compra
           </Link>

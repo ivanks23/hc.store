@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 type Order = {
   id: string;
   status: "PENDING" | "PAID" | "CANCELLED";
+  fulfillmentStatus: "NOT_REQUIRED" | "REVIEW_REQUIRED";
   total: string;
   customerName: string;
   customerPhone: string;
@@ -183,6 +184,15 @@ export default function OrderDetailPage() {
             {statusLabels[order.status]}
           </span>
         </div>
+
+        {order.fulfillmentStatus === "REVIEW_REQUIRED" && (
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-900">
+            <h2 className="font-semibold">Pago recibido; pedido en revisión</h2>
+            <p className="mt-2 text-sm leading-6">
+              Estamos revisando la disponibilidad de los productos. Te avisaremos al correo registrado cuando haya existencias.
+            </p>
+          </div>
+        )}
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">

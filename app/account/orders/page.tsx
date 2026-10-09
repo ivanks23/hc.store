@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type Order = {
   id: string;
   status: "PENDING" | "PAID" | "CANCELLED";
+  fulfillmentStatus: "NOT_REQUIRED" | "REVIEW_REQUIRED";
   total: string;
   createdAt: string;
   items: {
@@ -76,7 +77,7 @@ export default function OrdersPage() {
         throw new Error("Mercado Pago no devolvió una URL de pago.");
       }
 
-      window.location.href = data.initPoint;
+      window.location.assign(data.initPoint);
     } catch (error) {
       console.error(error);
 
@@ -177,6 +178,11 @@ export default function OrdersPage() {
                     >
                       {statusLabels[order.status]}
                     </span>
+                    {order.fulfillmentStatus === "REVIEW_REQUIRED" && (
+                      <p className="mt-2 max-w-sm text-left text-sm text-amber-800 md:ml-auto">
+                        Pago recibido. Revisaremos la disponibilidad y te avisaremos al correo registrado cuando haya existencias.
+                      </p>
+                    )}
 
                     <p className="mt-3 text-lg font-semibold text-slate-900">
                       $

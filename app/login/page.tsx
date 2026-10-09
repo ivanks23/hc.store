@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -14,6 +15,7 @@ const loginSchema = z.object({
 type LoginInput = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -38,7 +40,7 @@ export default function LoginPage() {
       return;
     }
 
-    window.location.href = "/";
+    router.push("/");
   };
 
   return (
@@ -46,7 +48,7 @@ export default function LoginPage() {
       <div className="mx-auto max-w-md px-4 py-12">
         <h1 className="text-3xl font-bold">Iniciar sesión</h1>
 
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-brand-muted">
           Ingresa a tu cuenta de HyperCode Store.
         </p>
 
@@ -109,7 +111,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-md bg-black px-4 py-2 text-white disabled:opacity-50"
+            className="w-full rounded-md bg-brand-ink px-4 py-2 text-white disabled:opacity-50"
           >
             {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>

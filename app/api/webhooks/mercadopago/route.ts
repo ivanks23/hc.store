@@ -61,6 +61,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!/^\d+$/.test(dataId)) {
+      return NextResponse.json(
+        { error: "El identificador del pago no es válido" },
+        { status: 400 },
+      );
+    }
+
     const paymentClient = new Payment(mercadoPago);
 
     const payment = await paymentClient.get({
@@ -88,9 +95,45 @@ export async function POST(request: Request) {
       );
     }
 
+    const paymentAmountInCents = Math.round(
+      Number(payment.transaction_amount) * 100,
+    );
+    const orderAmountInCents = Math.round(Number(order.total) * 100);
+
+    if (
+      payment.currency_id !== "MXN" ||
+      !Number.isFinite(paymentAmountInCents) ||
+      paymentAmountInCents !== orderAmountInCents
+    ) {
+      console.error("Pago rechazado por importe o moneda distinta al pedido:", {
+        paymentId: payment.id,
+        orderId: order.id,
+        paymentCurrency: payment.currency_id,
+        orderCurrency: "MXN",
+        paymentAmountInCents,
+        orderAmountInCents,
+      });
+
+      return NextResponse.json(
+        { error: "El importe o la moneda del pago no coincide con el pedido" },
+        { status: 400 },
+      );
+    }
+
     const paymentPayload = JSON.parse(JSON.stringify(payment));
 
     const paymentRecord = await prisma.$transaction(async (tx) => {
+      const existingPayment = await tx.payment.findUnique({
+        where: { mercadoPagoId: String(payment.id) },
+        select: { orderId: true },
+      });
+
+      if (existingPayment && existingPayment.orderId !== order.id) {
+        throw new Error(
+          `El pago ${payment.id} ya está asociado a otro pedido`,
+        );
+      }
+
       const paymentRecord = await tx.payment.upsert({
         where: {
           mercadoPagoId: String(payment.id),
@@ -112,9 +155,73 @@ export async function POST(request: Request) {
       });
 
       if (payment.status === "approved" && order.status !== "PAID") {
-        for (const orderItem of order.items) {
-          await registerOrderItemSale(orderItem.id, tx, {
-            allowInsufficientStock: true,
+        const variantIds = [...new Set(order.items.map((item) => item.variantId))].sort();
+        for (const variantId of variantIds) {
+          await tx.$queryRaw`
+            SELECT "id"
+            FROM "ProductVariant"
+            WHERE "id" = ${variantId}
+            FOR UPDATE
+          `;
+        }
+
+        const now = new Date();
+        const [physicalStockGroups, reservationGroups] = await Promise.all([
+          tx.inventoryMovement.groupBy({
+            by: ["variantId"],
+            where: { variantId: { in: variantIds } },
+            _sum: { quantity: true },
+          }),
+          tx.orderItem.groupBy({
+            by: ["variantId"],
+            where: {
+              variantId: { in: variantIds },
+              orderId: { not: order.id },
+              order: {
+                is: {
+                  OR: [
+                    {
+                      status: "PENDING",
+                      reservationExpiresAt: { gt: now },
+                    },
+                    {
+                      status: "PAID",
+                      fulfillmentStatus: "REVIEW_REQUIRED",
+                    },
+                  ],
+                },
+              },
+            },
+            _sum: { quantity: true },
+          }),
+        ]);
+        const physicalStock = new Map(
+          physicalStockGroups.map((group) => [
+            group.variantId,
+            group._sum.quantity ?? 0,
+          ]),
+        );
+        const reservedStock = new Map(
+          reservationGroups.map((group) => [
+            group.variantId,
+            group._sum.quantity ?? 0,
+          ]),
+        );
+        const hasInsufficientStock = order.items.some((item) => {
+          const available =
+            (physicalStock.get(item.variantId) ?? 0) -
+            (reservedStock.get(item.variantId) ?? 0);
+          return available < item.quantity;
+        });
+
+        if (!hasInsufficientStock) {
+          for (const orderItem of order.items) {
+            await registerOrderItemSale(orderItem.id, tx);
+          }
+        } else {
+          console.warn("Pago aprobado; pedido enviado a revisión por falta de stock:", {
+            paymentId: payment.id,
+            orderId: order.id,
           });
         }
 
@@ -124,6 +231,7 @@ export async function POST(request: Request) {
           },
           data: {
             status: "PAID",
+            fulfillmentStatus: hasInsufficientStock ? "REVIEW_REQUIRED" : "NOT_REQUIRED",
           },
         });
       }

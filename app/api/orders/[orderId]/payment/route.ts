@@ -100,6 +100,10 @@ export async function POST(
       },
     });
 
+    if (!response.init_point) {
+      throw new Error("Mercado Pago no devolvió una URL de pago");
+    }
+
     return NextResponse.json({
       initPoint: response.init_point,
     });

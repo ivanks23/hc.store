@@ -111,10 +111,16 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum FulfillmentStatus {
+  NOT_REQUIRED
+  REVIEW_REQUIRED
+}
+
 model Order {
   id                   String      @id @default(cuid())
   userId               String?
   status               OrderStatus @default(PENDING)
+  fulfillmentStatus    FulfillmentStatus @default(NOT_REQUIRED)
   reservationExpiresAt DateTime?
 
   customerName  String

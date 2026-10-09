@@ -33,8 +33,16 @@ export async function getVariantStocks(
                 variantId: { in: uniqueVariantIds },
                 order: {
                     is: {
-                        status: "PENDING",
-                        reservationExpiresAt: { gt: now },
+                        OR: [
+                            {
+                                status: "PENDING",
+                                reservationExpiresAt: { gt: now },
+                            },
+                            {
+                                status: "PAID",
+                                fulfillmentStatus: "REVIEW_REQUIRED",
+                            },
+                        ],
                     },
                 },
             },

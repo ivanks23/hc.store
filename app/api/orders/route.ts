@@ -239,6 +239,7 @@ export async function GET() {
       select: {
         id: true,
         status: true,
+        fulfillmentStatus: true,
         total: true,
         createdAt: true,
         items: {

@@ -101,7 +101,7 @@ async function onSubmit(data: CheckoutInput) {
       );
     }
 
-    window.location.href = paymentResult.initPoint;
+    window.location.assign(paymentResult.initPoint);
   } catch (error) {
     setSubmitError(
       error instanceof Error
@@ -115,19 +115,19 @@ async function onSubmit(data: CheckoutInput) {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50 px-4 py-10">
-        <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-10 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
+      <main className="min-h-screen bg-brand-background px-4 py-10">
+        <div className="mx-auto max-w-4xl rounded-xl border border-brand-border bg-white p-10 text-center">
+          <h1 className="text-3xl font-bold text-brand-ink">
             Tu carrito está vacío
           </h1>
 
-          <p className="mt-3 text-gray-600">
+          <p className="mt-3 text-brand-muted">
             Agrega productos antes de continuar con la compra.
           </p>
 
           <Link
             href="/catalog"
-            className="mt-6 inline-block rounded-lg bg-black px-5 py-3 font-medium text-white"
+            className="mt-6 inline-block rounded-lg bg-brand-ink px-5 py-3 font-medium text-white"
           >
             Ir al catálogo
           </Link>
@@ -137,9 +137,9 @@ async function onSubmit(data: CheckoutInput) {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
+    <main className="min-h-screen bg-brand-background px-4 py-10">
       <div className="mx-auto max-w-6xl">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-brand-ink">
           Finalizar compra
         </h1>
 
@@ -150,20 +150,20 @@ async function onSubmit(data: CheckoutInput) {
           >
             {/* DATOS DEL CLIENTE */}
 
-            <section className="rounded-xl border border-gray-200 bg-white p-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <section className="rounded-xl border border-brand-border bg-white p-6">
+              <h2 className="text-xl font-semibold text-brand-ink">
                 Datos del cliente
               </h2>
 
               <div className="mt-6 space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Nombre
                   </label>
 
                   <input
                     {...register("customerName")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.customerName && (
@@ -174,14 +174,14 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Teléfono
                   </label>
 
                   <input
                     {...register("customerPhone")}
                     type="tel"
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.customerPhone && (
@@ -192,14 +192,14 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Correo electrónico
                   </label>
 
                   <input
                     {...register("customerEmail")}
                     type="email"
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.customerEmail && (
@@ -213,20 +213,20 @@ async function onSubmit(data: CheckoutInput) {
 
             {/* DIRECCIÓN DE ENVÍO */}
 
-            <section className="rounded-xl border border-gray-200 bg-white p-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <section className="rounded-xl border border-brand-border bg-white p-6">
+              <h2 className="text-xl font-semibold text-brand-ink">
                 Dirección de envío
               </h2>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Calle
                   </label>
 
                   <input
                     {...register("shippingAddress.street")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.shippingAddress?.street && (
@@ -237,13 +237,13 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Número exterior
                   </label>
 
                   <input
                     {...register("shippingAddress.exteriorNumber")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.shippingAddress?.exteriorNumber && (
@@ -254,27 +254,27 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Número interior
-                    <span className="ml-1 text-gray-400">
+                    <span className="ml-1 text-brand-placeholder">
                       (opcional)
                     </span>
                   </label>
 
                   <input
                     {...register("shippingAddress.interiorNumber")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Colonia
                   </label>
 
                   <input
                     {...register("shippingAddress.neighborhood")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.shippingAddress?.neighborhood && (
@@ -285,13 +285,13 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Municipio / Alcaldía
                   </label>
 
                   <input
                     {...register("shippingAddress.municipality")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.shippingAddress?.municipality && (
@@ -302,13 +302,13 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Estado
                   </label>
 
                   <select
                     {...register("shippingAddress.state")}
-                    className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                   >
                     <option value="">Selecciona un estado</option>
 
@@ -327,7 +327,7 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Código postal
                   </label>
 
@@ -335,7 +335,7 @@ async function onSubmit(data: CheckoutInput) {
                     {...register("shippingAddress.postalCode")}
                     inputMode="numeric"
                     maxLength={5}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
 
                   {errors.shippingAddress?.postalCode && (
@@ -346,9 +346,9 @@ async function onSubmit(data: CheckoutInput) {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-sm font-medium text-brand-secondary">
                     Referencias
-                    <span className="ml-1 text-gray-400">
+                    <span className="ml-1 text-brand-placeholder">
                       (opcional)
                     </span>
                   </label>
@@ -356,7 +356,7 @@ async function onSubmit(data: CheckoutInput) {
                   <textarea
                     {...register("shippingAddress.references")}
                     rows={2}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                    className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 outline-none focus:border-black"
                   />
                 </div>
               </div>
@@ -364,8 +364,8 @@ async function onSubmit(data: CheckoutInput) {
 
             {/* FACTURACIÓN */}
 
-            <section className="rounded-xl border border-gray-200 bg-white p-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <section className="rounded-xl border border-brand-border bg-white p-6">
+              <h2 className="text-xl font-semibold text-brand-ink">
                 Facturación
               </h2>
 
@@ -376,7 +376,7 @@ async function onSubmit(data: CheckoutInput) {
                   className="h-4 w-4"
                 />
 
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-brand-secondary">
                   Necesito factura
                 </span>
               </label>
@@ -384,13 +384,13 @@ async function onSubmit(data: CheckoutInput) {
               {wantsInvoice && (
                 <div className="mt-6 space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-brand-secondary">
                       Razón social
                     </label>
 
                     <input
                       {...register("billingBusinessName")}
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 uppercase outline-none focus:border-black"
+                      className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 uppercase outline-none focus:border-black"
                     />
 
                     {errors.billingBusinessName && (
@@ -401,13 +401,13 @@ async function onSubmit(data: CheckoutInput) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-brand-secondary">
                       RFC
                     </label>
 
                     <input
                       {...register("billingRfc")}
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-3 uppercase outline-none focus:border-black"
+                      className="mt-1 w-full rounded-lg border border-brand-border-strong px-4 py-3 uppercase outline-none focus:border-black"
                     />
 
                     {errors.billingRfc && (
@@ -418,13 +418,13 @@ async function onSubmit(data: CheckoutInput) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-brand-secondary">
                       Régimen fiscal
                     </label>
 
                     <select
                       {...register("billingRegime")}
-                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                      className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                     >
                       <option value="">
                         Selecciona tu régimen fiscal
@@ -445,13 +445,13 @@ async function onSubmit(data: CheckoutInput) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-brand-secondary">
                       Uso de CFDI
                     </label>
 
                     <select
                       {...register("billingCfdiUse")}
-                      className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                      className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                     >
                       <option value="">
                         Selecciona el uso de CFDI
@@ -478,26 +478,26 @@ async function onSubmit(data: CheckoutInput) {
                       className="h-4 w-4"
                     />
 
-                    <span className="text-sm text-gray-700">
+                    <span className="text-sm text-brand-secondary">
                       Usar la misma dirección de envío para la factura
                     </span>
                   </label>
 
                   {!billingSameAsShipping && (
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-5">
-                      <h3 className="font-medium text-gray-900">
+                    <div className="rounded-lg border border-brand-border bg-brand-background p-5">
+                      <h3 className="font-medium text-brand-ink">
                         Dirección fiscal
                       </h3>
 
                       <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div className="sm:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Calle
                           </label>
 
                           <input
                             {...register("billingAddress.street")}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
 
                           {errors.billingAddress?.street && (
@@ -508,7 +508,7 @@ async function onSubmit(data: CheckoutInput) {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Número exterior
                           </label>
 
@@ -516,7 +516,7 @@ async function onSubmit(data: CheckoutInput) {
                             {...register(
                               "billingAddress.exteriorNumber",
                             )}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
 
                           {errors.billingAddress?.exteriorNumber && (
@@ -530,9 +530,9 @@ async function onSubmit(data: CheckoutInput) {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Número interior
-                            <span className="ml-1 text-gray-400">
+                            <span className="ml-1 text-brand-placeholder">
                               (opcional)
                             </span>
                           </label>
@@ -541,12 +541,12 @@ async function onSubmit(data: CheckoutInput) {
                             {...register(
                               "billingAddress.interiorNumber",
                             )}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Colonia
                           </label>
 
@@ -554,7 +554,7 @@ async function onSubmit(data: CheckoutInput) {
                             {...register(
                               "billingAddress.neighborhood",
                             )}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
 
                           {errors.billingAddress?.neighborhood && (
@@ -568,7 +568,7 @@ async function onSubmit(data: CheckoutInput) {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Municipio / Alcaldía
                           </label>
 
@@ -576,7 +576,7 @@ async function onSubmit(data: CheckoutInput) {
                             {...register(
                               "billingAddress.municipality",
                             )}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
 
                           {errors.billingAddress?.municipality && (
@@ -590,13 +590,13 @@ async function onSubmit(data: CheckoutInput) {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Estado
                           </label>
 
                           <select
                             {...register("billingAddress.state")}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           >
                             <option value="">
                               Selecciona un estado
@@ -617,7 +617,7 @@ async function onSubmit(data: CheckoutInput) {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Código postal
                           </label>
 
@@ -627,7 +627,7 @@ async function onSubmit(data: CheckoutInput) {
                             )}
                             inputMode="numeric"
                             maxLength={5}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
 
                           {errors.billingAddress?.postalCode && (
@@ -641,9 +641,9 @@ async function onSubmit(data: CheckoutInput) {
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium text-brand-secondary">
                             Referencias
-                            <span className="ml-1 text-gray-400">
+                            <span className="ml-1 text-brand-placeholder">
                               (opcional)
                             </span>
                           </label>
@@ -653,7 +653,7 @@ async function onSubmit(data: CheckoutInput) {
                               "billingAddress.references",
                             )}
                             rows={2}
-                            className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
+                            className="mt-1 w-full rounded-lg border border-brand-border-strong bg-white px-4 py-3 outline-none focus:border-black"
                           />
                         </div>
                       </div>
@@ -666,7 +666,7 @@ async function onSubmit(data: CheckoutInput) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full rounded-lg bg-black px-5 py-3 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-lg bg-brand-ink px-5 py-3 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? "Creando pedido..." : "Revisar pedido"}
             </button>
@@ -681,8 +681,8 @@ async function onSubmit(data: CheckoutInput) {
 
           {/* RESUMEN */}
 
-          <aside className="h-fit rounded-xl border border-gray-200 bg-white p-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+          <aside className="h-fit rounded-xl border border-brand-border bg-white p-6">
+            <h2 className="text-xl font-semibold text-brand-ink">
               Resumen del pedido
             </h2>
 
@@ -693,30 +693,30 @@ async function onSubmit(data: CheckoutInput) {
                   className="flex justify-between gap-4 text-sm"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-brand-ink">
                       {item.name}
                     </p>
 
-                    <p className="text-gray-500">
+                    <p className="text-brand-text-subtle">
                       {item.quantity} × ${item.price.toFixed(2)}
                     </p>
                   </div>
 
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-brand-ink">
                     ${(item.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4 text-lg font-bold">
+            <div className="mt-6 flex items-center justify-between border-t border-brand-border pt-4 text-lg font-bold">
               <span>Total</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
 
             <Link
               href="/cart"
-              className="mt-4 block text-center text-sm text-gray-600 hover:text-gray-900"
+              className="mt-4 block text-center text-sm text-brand-muted hover:text-brand-ink"
             >
               Volver al carrito
             </Link>

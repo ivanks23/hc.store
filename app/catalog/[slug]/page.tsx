@@ -1,6 +1,9 @@
 import Link from "next/link";
 import AddToCartButton from "./add-to-cart-button";
 
+import { getVariantStocks } from "@/lib/inventory";
+import { prisma } from "@/lib/prisma";
+
 type ProductAttribute = {
   value: string;
   attribute: {
@@ -44,22 +47,51 @@ type ProductPageProps = {
 };
 
 async function getProduct(slug: string): Promise<Product | null> {
-  const response = await fetch(
-    `http://localhost:3000/api/products/slug/${slug}`,
-    {
-      cache: "no-store",
+  const product = await prisma.product.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      brand: true,
+      model: true,
+      description: true,
+      slug: true,
+      category: { select: { name: true } },
+      variants: {
+        select: {
+          id: true,
+          sku: true,
+          price: true,
+          attributes: {
+            select: {
+              value: true,
+              attribute: { select: { name: true } },
+            },
+          },
+        },
+        orderBy: { sku: "asc" },
+      },
+      images: {
+        select: { id: true, url: true, alt: true, position: true },
+        orderBy: { position: "asc" },
+      },
     },
+  });
+
+  if (!product) return null;
+
+  const stocks = await getVariantStocks(
+    product.variants.map((variant) => variant.id),
   );
 
-  if (response.status === 404) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throw new Error("No se pudo cargar el producto");
-  }
-
-  return response.json();
+  return {
+    ...product,
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      price: variant.price.toFixed(2),
+      availableStock: stocks.get(variant.id) ?? 0,
+    })),
+  };
 }
 
 export default async function ProductPage({
@@ -70,15 +102,15 @@ export default async function ProductPage({
 
   if (!product) {
     return (
-      <main className="min-h-screen bg-gray-50 px-4 py-10">
-        <div className="mx-auto max-w-4xl rounded-xl border border-gray-200 bg-white p-10 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">
+      <main className="min-h-screen bg-brand-background px-4 py-10">
+        <div className="mx-auto max-w-4xl rounded-xl border border-brand-border bg-white p-10 text-center">
+          <h1 className="text-2xl font-bold text-brand-ink">
             Producto no encontrado
           </h1>
 
           <Link
             href="/catalog"
-            className="mt-6 inline-block rounded-lg bg-black px-4 py-2 text-sm font-medium text-white"
+            className="mt-6 inline-block rounded-lg bg-brand-ink px-4 py-2 text-sm font-medium text-white"
           >
             Volver al catálogo
           </Link>
@@ -88,20 +120,19 @@ export default async function ProductPage({
   }
 
   const mainImage = product.images[0];
-  const firstVariant = product.variants[0];
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-10">
+    <main className="min-h-screen bg-brand-background px-4 py-10">
       <div className="mx-auto max-w-6xl">
         <Link
           href="/catalog"
-          className="mb-6 inline-block text-sm text-gray-600 hover:text-gray-900"
+          className="mb-6 inline-block text-sm text-brand-muted hover:text-brand-ink"
         >
           ← Volver al catálogo
         </Link>
 
-        <div className="grid gap-8 rounded-xl border border-gray-200 bg-white p-6 md:grid-cols-2">
-          <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
+        <div className="grid gap-8 rounded-xl border border-brand-border bg-white p-6 md:grid-cols-2">
+          <div className="aspect-square overflow-hidden rounded-lg bg-brand-image-surface">
             {mainImage ? (
               <img
                 src={mainImage.url}
@@ -109,23 +140,23 @@ export default async function ProductPage({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-gray-400">
+              <div className="flex h-full items-center justify-center text-brand-placeholder">
                 Sin imagen
               </div>
             )}
           </div>
 
           <div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-brand-text-subtle">
               {product.category.name}
             </p>
 
-            <h1 className="mt-2 text-3xl font-bold text-gray-900">
+            <h1 className="mt-2 text-3xl font-bold text-brand-ink">
               {product.name}
             </h1>
 
             {(product.brand || product.model) && (
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-brand-text-subtle">
                 {[product.brand, product.model]
                   .filter(Boolean)
                   .join(" · ")}
@@ -133,70 +164,20 @@ export default async function ProductPage({
             )}
 
             {product.description && (
-              <p className="mt-6 leading-7 text-gray-600">
+              <p className="mt-6 leading-7 text-brand-muted">
                 {product.description}
               </p>
             )}
 
-            {firstVariant && (
-              <p className="mt-8 text-3xl font-bold text-gray-900">
-                ${firstVariant.price}
-              </p>
-            )}
-
-            {firstVariant && (
-              <p className="mt-2 text-sm text-gray-600">
-                {firstVariant.availableStock > 0
-                  ? `${firstVariant.availableStock} disponibles`
-                  : "Agotado"}
-              </p>
-            )}
-
             {product.variants.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Variantes
-                </h2>
-
-                <div className="mt-3 space-y-3">
-                  {product.variants.map((variant) => (
-                    <div
-                      key={variant.id}
-                      className="rounded-lg border border-gray-200 p-4"
-                    >
-                      <p className="font-medium text-gray-900">
-                        SKU: {variant.sku}
-                      </p>
-
-                      <p className="mt-1 text-lg font-semibold">
-                        ${variant.price}
-                      </p>
-
-                      {variant.attributes.length > 0 && (
-                        <div className="mt-2 space-y-1 text-sm text-gray-600">
-                          {variant.attributes.map((item) => (
-                            <p
-                              key={`${variant.id}-${item.attribute.name}`}
-                            >
-                              {item.attribute.name}: {item.value}
-                            </p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {firstVariant && (
               <AddToCartButton
-                variantId={firstVariant.id}
                 productId={product.id}
                 name={product.name}
-                price={Number(firstVariant.price)}
                 image={mainImage?.url ?? null}
-                availableStock={firstVariant.availableStock}
+                variants={product.variants.map((variant) => ({
+                  ...variant,
+                  price: Number(variant.price),
+                }))}
               />
             )}
           </div>
