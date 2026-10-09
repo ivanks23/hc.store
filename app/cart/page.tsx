@@ -69,6 +69,7 @@ export default function CartPage() {
             price: string;
             image: string | null;
             quantity: number;
+            availableStock: number;
           }) => ({
             variantId: item.variantId,
             productId: item.productId,
@@ -76,6 +77,7 @@ export default function CartPage() {
             price: Number(item.price),
             image: item.image,
             quantity: item.quantity,
+            availableStock: item.availableStock,
           }),
         );
 
@@ -107,6 +109,11 @@ export default function CartPage() {
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
+  );
+  const hasUnavailableQuantity = items.some(
+    (item) =>
+      item.availableStock !== undefined &&
+      item.quantity > item.availableStock,
   );
 
   if (isValidating) {
@@ -194,6 +201,19 @@ export default function CartPage() {
                   <p className="mt-1 text-gray-600">
                     ${item.price.toFixed(2)} c/u
                   </p>
+                  {item.availableStock !== undefined && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      {item.availableStock > 0
+                        ? `${item.availableStock} disponibles`
+                        : "Agotado"}
+                    </p>
+                  )}
+                  {item.availableStock !== undefined &&
+                    item.quantity > item.availableStock && (
+                      <p className="mt-1 text-sm text-red-700" role="alert">
+                        Ajusta la cantidad a las existencias disponibles.
+                      </p>
+                    )}
                 </div>
 
                 <div className="mt-4 flex items-center gap-3">
@@ -206,6 +226,7 @@ export default function CartPage() {
                       )
                     }
                     className="h-8 w-8 rounded border border-gray-300"
+                    aria-label={`Disminuir cantidad de ${item.name}`}
                   >
                     −
                   </button>
@@ -223,6 +244,11 @@ export default function CartPage() {
                       )
                     }
                     className="h-8 w-8 rounded border border-gray-300"
+                    disabled={
+                      item.availableStock !== undefined &&
+                      item.quantity >= item.availableStock
+                    }
+                    aria-label={`Aumentar cantidad de ${item.name}`}
                   >
                     +
                   </button>
@@ -250,12 +276,22 @@ export default function CartPage() {
             <span>${total.toFixed(2)}</span>
           </div>
 
-        <Link
-          href="/checkout"
-          className="mt-6 block w-full rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
-        >
-          Continuar con la compra
-        </Link>
+        {hasUnavailableQuantity || validationError ? (
+          <button
+            type="button"
+            disabled
+            className="mt-6 block w-full cursor-not-allowed rounded-lg bg-gray-400 px-5 py-3 text-center font-medium text-white"
+          >
+            Ajusta el carrito para continuar
+          </button>
+        ) : (
+          <Link
+            href="/checkout"
+            className="mt-6 block w-full rounded-lg bg-black px-5 py-3 text-center font-medium text-white"
+          >
+            Continuar con la compra
+          </Link>
+        )}
         
         </div>
       </div>

@@ -35,8 +35,35 @@ export async function GET(
         id: true,
         status: true,
         total: true,
+        createdAt: true,
+        reservationExpiresAt: true,
         customerName: true,
+        customerPhone: true,
         customerEmail: true,
+
+        shippingStreet: true,
+        shippingExteriorNumber: true,
+        shippingInteriorNumber: true,
+        shippingNeighborhood: true,
+        shippingMunicipality: true,
+        shippingState: true,
+        shippingPostalCode: true,
+        shippingReferences: true,
+
+        wantsInvoice: true,
+        billingBusinessName: true,
+        billingRfc: true,
+        billingRegime: true,
+        billingCfdiUse: true,
+        billingStreet: true,
+        billingExteriorNumber: true,
+        billingInteriorNumber: true,
+        billingNeighborhood: true,
+        billingMunicipality: true,
+        billingState: true,
+        billingPostalCode: true,
+        billingReferences: true,
+
         items: {
           select: {
             productName: true,
@@ -55,8 +82,34 @@ export async function GET(
       );
     }
 
+    let status = order.status;
+    if (
+      status === "PENDING" &&
+      order.reservationExpiresAt &&
+      order.reservationExpiresAt <= new Date()
+    ) {
+      const expired = await prisma.order.updateMany({
+        where: {
+          id: order.id,
+          userId: session.user.id,
+          status: "PENDING",
+        },
+        data: { status: "CANCELLED" },
+      });
+
+      if (expired.count > 0) {
+        status = "CANCELLED";
+      } else {
+        const latest = await prisma.order.findUnique({
+          where: { id: order.id },
+          select: { status: true },
+        });
+        status = latest?.status ?? status;
+      }
+    }
+
     return NextResponse.json({
-      order,
+      order: { ...order, status },
     });
   } catch (error) {
     console.error("Error al consultar pedido:", error);

@@ -2,14 +2,14 @@ import {
   WebhookSignatureValidator,
 } from "mercadopago";
 
-const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-
 function getWebhookSecret(): string {
-  if (!webhookSecret) {
+  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+
+  if (!secret) {
     throw new Error("MERCADOPAGO_WEBHOOK_SECRET no está definida");
   }
 
-  return webhookSecret;
+  return secret;
 }
 
 type ValidateWebhookSignatureParams = {
@@ -17,6 +17,7 @@ type ValidateWebhookSignatureParams = {
   xRequestId: string | null;
   dataId: string | null;
 };
+
 
 export function validateMercadoPagoWebhookSignature({
   xSignature,

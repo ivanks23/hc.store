@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getVariantStocks } from "@/lib/inventory";
 import { prisma } from "@/lib/prisma";
 
 type RouteContext = {
@@ -48,7 +49,17 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(product);
+    const stocks = await getVariantStocks(
+      product.variants.map((variant) => variant.id),
+    );
+
+    return NextResponse.json({
+      ...product,
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        availableStock: stocks.get(variant.id) ?? 0,
+      })),
+    });
   } catch (error) {
     console.error("Error al obtener producto por slug:", error);
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getVariantStocks } from "@/lib/inventory";
 import { prisma } from "@/lib/prisma";
 import { cartSchema } from "@/lib/validations/cart";
 
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const stocks = await getVariantStocks(variantIds);
     const validatedItems = items.map((item) => {
       const variant = variants.find(
         (currentVariant) =>
@@ -71,6 +73,7 @@ export async function POST(request: Request) {
         price: variant.price.toString(),
         image: variant.product.images[0]?.url ?? null,
         quantity: item.quantity,
+        availableStock: stocks.get(variant.id) ?? 0,
         attributes: variant.attributes,
       };
     });

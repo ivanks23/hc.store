@@ -112,9 +112,10 @@ enum OrderStatus {
 }
 
 model Order {
-  id     String      @id @default(cuid())
-  userId String?
-  status OrderStatus @default(PENDING)
+  id                   String      @id @default(cuid())
+  userId               String?
+  status               OrderStatus @default(PENDING)
+  reservationExpiresAt DateTime?
 
   customerName  String
   customerPhone String
@@ -155,6 +156,7 @@ model Order {
 
   @@index([userId])
   @@index([status])
+  @@index([status, reservationExpiresAt])
 }
 
 model OrderItem {

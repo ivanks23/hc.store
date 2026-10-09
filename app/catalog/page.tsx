@@ -4,6 +4,7 @@ type ProductVariant = {
   id: string;
   sku: string;
   price: string;
+  availableStock: number;
 };
 
 type ProductImage = {
@@ -102,6 +103,14 @@ export default async function CatalogPage() {
                     {firstVariant && (
                       <p className="mt-4 text-xl font-bold text-gray-900">
                         ${firstVariant.price}
+                      </p>
+                    )}
+
+                    {firstVariant && (
+                      <p className="mt-1 text-sm text-gray-600">
+                        {firstVariant.availableStock > 0
+                          ? `${firstVariant.availableStock} disponibles`
+                          : "Agotado"}
                       </p>
                     )}
 

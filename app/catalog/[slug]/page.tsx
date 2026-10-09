@@ -12,6 +12,7 @@ type ProductVariant = {
   id: string;
   sku: string;
   price: string;
+  availableStock: number;
   attributes: ProductAttribute[];
 };
 
@@ -143,6 +144,14 @@ export default async function ProductPage({
               </p>
             )}
 
+            {firstVariant && (
+              <p className="mt-2 text-sm text-gray-600">
+                {firstVariant.availableStock > 0
+                  ? `${firstVariant.availableStock} disponibles`
+                  : "Agotado"}
+              </p>
+            )}
+
             {product.variants.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-lg font-semibold text-gray-900">
@@ -187,6 +196,7 @@ export default async function ProductPage({
                 name={product.name}
                 price={Number(firstVariant.price)}
                 image={mainImage?.url ?? null}
+                availableStock={firstVariant.availableStock}
               />
             )}
           </div>

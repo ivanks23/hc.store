@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getVariantStocks } from "@/lib/inventory";
 import { productSchema } from "@/lib/validations/product";
 
 export async function GET() {
@@ -30,7 +31,19 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(products);
+    const stocks = await getVariantStocks(
+      products.flatMap((product) => product.variants.map((variant) => variant.id)),
+    );
+
+    return NextResponse.json(
+      products.map((product) => ({
+        ...product,
+        variants: product.variants.map((variant) => ({
+          ...variant,
+          availableStock: stocks.get(variant.id) ?? 0,
+        })),
+      })),
+    );
   } catch (error) {
     console.error("Error al obtener productos:", error);
 

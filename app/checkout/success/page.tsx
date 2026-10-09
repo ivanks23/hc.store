@@ -101,6 +101,19 @@ export default function CheckoutSuccessPage() {
     );
   }
 
+  if (status === "CANCELLED") {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">La reserva venció</h1>
+          <p className="mt-3 text-gray-600">
+            El pedido no se confirmó. Regresa a la tienda para iniciar una compra nueva.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center">
