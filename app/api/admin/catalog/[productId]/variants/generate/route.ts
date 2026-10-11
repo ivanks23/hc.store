@@ -27,7 +27,9 @@ export async function POST(request: Request, context: Context) {
         const associated = await tx.productOptionValue.findMany({ where: { id: { in: combination.optionValueIds } }, select: { optionId: true } });
         if (new Set(associated.map(v => v.optionId)).size !== optionIds.size) return { invalid: true as const };
       }
-      const existing = await tx.productVariant.findMany({ where: { productId }, select: { sku: true, optionValues: { select: { valueId: true } } } });
+      const existing = await tx.productVariant.findMany({ where: { productId }, select: { sku: true, isActive: true, optionValues: { select: { valueId: true } } } });
+      const unlinkedActiveCount = existing.filter(variant => variant.isActive && variant.optionValues.length !== product.options.length).length;
+      if (unlinkedActiveCount > 0) return { unlinkedActiveCount };
       const existingCombinations = new Set(existing.filter(v => v.optionValues.length).map(v => v.optionValues.map(x => x.valueId).sort().join("|")));
       const existingSkus = new Set(existing.map(v => v.sku.toUpperCase()));
       const create = parsed.data.combinations.filter(c => !existingCombinations.has([...c.optionValueIds].sort().join("|")));
@@ -39,6 +41,7 @@ export async function POST(request: Request, context: Context) {
     if ("noOptions" in result) return NextResponse.json({ error: "Primero configura opciones y valores" }, { status: 409 });
     if ("invalid" in result) return NextResponse.json({ error: "Cada combinación debe tener un valor válido por opción" }, { status: 400 });
     if ("duplicateSku" in result) return NextResponse.json({ error: "Un SKU ya pertenece a otra variante" }, { status: 409 });
+    if ("unlinkedActiveCount" in result) return NextResponse.json({ error: `Primero vincula las ${result.unlinkedActiveCount} variantes activas existentes en el paso 3 para evitar duplicados.` }, { status: 409 });
     return NextResponse.json(result, { status: 201 });
   } catch (error) { console.error("Error al generar variantes:", error); return NextResponse.json({ error: "No se pudieron generar las variantes" }, { status: 500 }); }
 }
