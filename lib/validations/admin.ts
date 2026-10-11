@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { productSchema } from "@/lib/validations/product";
+import { productVariantSchema } from "@/lib/validations/product-variant";
 
 export const inventoryMovementSchema = z.object({
   variantId: z.string().min(1),
@@ -33,6 +34,11 @@ export const adminProductSchema = productSchema.extend({
 });
 
 export const adminProductUpdateSchema = adminProductSchema.partial().refine(
+  (data) => Object.keys(data).length > 0,
+  "No hay datos para actualizar",
+);
+
+export const adminVariantUpdateSchema = productVariantSchema.partial().refine(
   (data) => Object.keys(data).length > 0,
   "No hay datos para actualizar",
 );
