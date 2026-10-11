@@ -15,6 +15,19 @@ export async function POST(
   context: RouteContext,
 ) {
   try {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.MERCADOPAGO_ACCESS_TOKEN?.startsWith("APP_USR-")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Los pagos están bloqueados en desarrollo porque el servidor usa credenciales de producción. Configura un Access Token de prueba (TEST-) para continuar.",
+        },
+        { status: 503 },
+      );
+    }
+
     const { orderId } = await context.params;
 
     const order = await prisma.order.findUnique({
