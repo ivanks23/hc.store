@@ -47,8 +47,8 @@ type ProductPageProps = {
 };
 
 async function getProduct(slug: string): Promise<Product | null> {
-  const product = await prisma.product.findUnique({
-    where: { slug },
+  const product = await prisma.product.findFirst({
+    where: { slug, isActive: true },
     select: {
       id: true,
       name: true,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAdminSession } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { getVariantStocks } from "@/lib/inventory";
 import { productSchema } from "@/lib/validations/product";
@@ -6,6 +7,7 @@ import { productSchema } from "@/lib/validations/product";
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
+      where: { isActive: true },
       include: {
         category: true,
         variants: {
@@ -55,6 +57,11 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const session = await getAdminSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
 

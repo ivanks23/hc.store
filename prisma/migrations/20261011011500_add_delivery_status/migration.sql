@@ -1,0 +1,4 @@
+CREATE TYPE "DeliveryStatus" AS ENUM ('PENDING', 'PREPARING', 'SHIPPED', 'DELIVERED');
+
+ALTER TABLE "Order"
+ADD COLUMN "deliveryStatus" "DeliveryStatus" NOT NULL DEFAULT 'PENDING';

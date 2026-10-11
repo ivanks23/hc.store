@@ -23,6 +23,7 @@ model Product {
   model       String?
   description String?
   slug        String  @unique
+  isActive    Boolean @default(true)
 
   category Category         @relation(fields: [categoryId], references: [id])
   variants ProductVariant[]
@@ -116,11 +117,19 @@ enum FulfillmentStatus {
   REVIEW_REQUIRED
 }
 
+enum DeliveryStatus {
+  PENDING
+  PREPARING
+  SHIPPED
+  DELIVERED
+}
+
 model Order {
   id                   String      @id @default(cuid())
   userId               String?
   status               OrderStatus @default(PENDING)
   fulfillmentStatus    FulfillmentStatus @default(NOT_REQUIRED)
+  deliveryStatus       DeliveryStatus @default(PENDING)
   reservationExpiresAt DateTime?
 
   customerName  String

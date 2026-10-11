@@ -4,6 +4,7 @@ import { Geist } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
+import StoreAccountNavigation from "./store-account-navigation";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +33,7 @@ function StoreHeader() {
           <Link href="/catalog" className="rounded-full px-3 py-2 text-sm font-semibold text-brand-secondary transition hover:bg-brand-green-tint hover:text-brand-ink">
             Catálogo
           </Link>
-          <Link href="/login" className="hidden rounded-full px-3 py-2 text-sm font-semibold text-brand-secondary transition hover:bg-brand-green-tint hover:text-brand-ink sm:inline-flex">
-            Mi cuenta
-          </Link>
+          <StoreAccountNavigation />
           <Link href="/cart" className="rounded-full bg-brand-ink px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand-forest-hover">
             Carrito <span aria-hidden="true">↗</span>
           </Link>
