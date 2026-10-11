@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 async function getFeaturedProducts() {
   const products = await prisma.product.findMany({
-    where: { isActive: true, variants: { some: {} } },
+    where: { isActive: true, variants: { some: { isActive: true } } },
     select: {
       id: true,
       name: true,
@@ -17,6 +17,7 @@ async function getFeaturedProducts() {
         take: 1,
       },
       variants: {
+        where: { isActive: true },
         select: { id: true, price: true },
         orderBy: { price: "asc" },
       },

@@ -38,7 +38,9 @@ export const adminProductUpdateSchema = adminProductSchema.partial().refine(
   "No hay datos para actualizar",
 );
 
-export const adminVariantUpdateSchema = productVariantSchema.partial().refine(
+export const adminVariantUpdateSchema = productVariantSchema.partial().extend({
+  isActive: z.boolean().optional(),
+}).refine(
   (data) => Object.keys(data).length > 0,
   "No hay datos para actualizar",
 );

@@ -18,7 +18,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       const duplicate = await prisma.productVariant.findFirst({ where: { sku: result.data.sku, NOT: { id: variantId } }, select: { id: true } });
       if (duplicate) return NextResponse.json({ error: "El SKU ya existe" }, { status: 409 });
     }
-    const updated = await prisma.productVariant.update({ where: { id: variantId }, data: result.data, select: { id: true, sku: true, price: true } });
+    const updated = await prisma.productVariant.update({ where: { id: variantId }, data: result.data, select: { id: true, sku: true, price: true, isActive: true } });
     return NextResponse.json({ ...updated, price: updated.price.toString() });
   } catch (error) { console.error("Error al actualizar variante:", error); return NextResponse.json({ error: "No se pudo actualizar la variante" }, { status: 500 }); }
 }

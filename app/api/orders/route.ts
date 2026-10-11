@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     const reservationExpiresAt = getStockReservationExpiry(now);
     const order = await prisma.$transaction(async (tx) => {
       const variants = await tx.productVariant.findMany({
-        where: { id: { in: variantIds } },
+        where: { id: { in: variantIds }, isActive: true, product: { isActive: true } },
         include: { product: true },
       });
 

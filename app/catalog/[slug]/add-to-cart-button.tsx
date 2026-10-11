@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useCartStore } from "@/lib/store/cart-store";
 
@@ -17,6 +17,7 @@ type AddToCartButtonProps = {
       value: string;
       attribute: { name: string };
     }[];
+    optionValues?: { name: string; value: string }[];
   }[];
 };
 
@@ -28,11 +29,26 @@ export default function AddToCartButton({
 }: AddToCartButtonProps) {
   const addItem = useCartStore((state) => state.addItem);
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id ?? "");
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(
+    () => Object.fromEntries((variants.find((variant) => variant.optionValues?.length)?.optionValues ?? []).map((item) => [item.name, item.value])),
+  );
   const [added, setAdded] = useState(false);
   const [stockError, setStockError] = useState<string | null>(null);
-  const selectedVariant = variants.find((variant) => variant.id === selectedVariantId);
+  const optionNames = useMemo(
+    () => [...new Set(variants.flatMap((variant) => (variant.optionValues ?? []).map((item) => item.name)))],
+    [variants],
+  );
+  const optionVariants = optionNames.length
+    ? variants.filter((variant) => optionNames.every((name) => variant.optionValues?.some((item) => item.name === name)))
+    : variants;
+  const selectedVariant = optionNames.length
+    ? optionVariants.find((variant) => optionNames.every((name) => variant.optionValues?.some((item) => item.name === name && item.value === selectedOptions[name])))
+    : variants.find((variant) => variant.id === selectedVariantId);
 
   function getVariantLabel(variant: (typeof variants)[number]) {
+    if (variant.optionValues?.length) {
+      return variant.optionValues.map((item) => `${item.name}: ${item.value}`).join(" · ");
+    }
     if (variant.attributes.length === 0) return variant.sku;
     return variant.attributes
       .map((item) => `${item.attribute.name}: ${item.value}`)
@@ -69,7 +85,31 @@ export default function AddToCartButton({
 
   return (
     <div className="mt-8">
-      {variants.length > 1 && (
+      {optionNames.length > 0 ? (
+        <div className="space-y-4">
+          {optionNames.map((name) => {
+            const values = [...new Set(optionVariants.flatMap((variant) => variant.optionValues?.filter((item) => item.name === name).map((item) => item.value) ?? []))];
+            return <label key={name} className="block text-sm font-semibold text-brand-ink">
+              {name}
+              <select
+                value={selectedOptions[name] ?? ""}
+                onChange={(event) => {
+                  const next = { ...selectedOptions, [name]: event.target.value };
+                  setSelectedOptions(next);
+                  const match = optionVariants.find((variant) => optionNames.every((optionName) => variant.optionValues?.some((item) => item.name === optionName && item.value === next[optionName])));
+                  setSelectedVariantId(match?.id ?? "");
+                  setAdded(false);
+                  setStockError(null);
+                }}
+                className="mt-2 block w-full rounded-lg border border-brand-border-strong bg-white px-3 py-2.5 text-brand-ink"
+              >
+                {values.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+            </label>;
+          })}
+          {!selectedVariant && <p className="text-sm text-brand-muted">Esta combinación no está disponible.</p>}
+        </div>
+      ) : variants.length > 1 && (
         <fieldset>
           <legend className="text-sm font-semibold text-brand-ink">Elige una variante</legend>
           <div className="mt-3 flex flex-wrap gap-2">

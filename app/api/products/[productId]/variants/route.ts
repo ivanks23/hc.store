@@ -32,6 +32,7 @@ export async function GET(
     const variants = await prisma.productVariant.findMany({
       where: {
         productId,
+        isActive: true,
       },
       orderBy: {
         sku: "asc",

@@ -11,6 +11,7 @@ export async function GET() {
       include: {
         category: true,
         variants: {
+          where: { isActive: true },
           include: {
             attributes: {
               include: {

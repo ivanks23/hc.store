@@ -30,6 +30,7 @@ export async function POST(request: Request) {
           in: variantIds,
         },
         product: { isActive: true },
+        isActive: true,
       },
       include: {
         product: {

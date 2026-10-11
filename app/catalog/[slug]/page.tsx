@@ -11,12 +11,17 @@ type ProductAttribute = {
   };
 };
 
+type VariantOptionValue = {
+  value: { value: string; option: { name: string } };
+};
+
 type ProductVariant = {
   id: string;
   sku: string;
   price: string;
   availableStock: number;
   attributes: ProductAttribute[];
+  optionValues: VariantOptionValue[];
 };
 
 type ProductImage = {
@@ -58,6 +63,7 @@ async function getProduct(slug: string): Promise<Product | null> {
       slug: true,
       category: { select: { name: true } },
       variants: {
+        where: { isActive: true },
         select: {
           id: true,
           sku: true,
@@ -67,6 +73,9 @@ async function getProduct(slug: string): Promise<Product | null> {
               value: true,
               attribute: { select: { name: true } },
             },
+          },
+          optionValues: {
+            select: { value: { select: { value: true, option: { select: { name: true } } } } },
           },
         },
         orderBy: { sku: "asc" },
@@ -177,6 +186,10 @@ export default async function ProductPage({
                 variants={product.variants.map((variant) => ({
                   ...variant,
                   price: Number(variant.price),
+                  optionValues: variant.optionValues.map(({ value }) => ({
+                    name: value.option.name,
+                    value: value.value,
+                  })),
                 }))}
               />
             )}

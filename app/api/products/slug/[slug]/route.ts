@@ -19,10 +19,12 @@ export async function GET(
     const product = await prisma.product.findUnique({
       where: {
         slug,
+        isActive: true,
       },
       include: {
         category: true,
         variants: {
+          where: { isActive: true },
           include: {
             attributes: {
               include: {

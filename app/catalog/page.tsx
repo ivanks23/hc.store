@@ -13,6 +13,7 @@ export default async function CatalogPage() {
       model: true,
       slug: true,
       variants: {
+        where: { isActive: true },
         select: { id: true, sku: true, price: true },
         orderBy: { price: "asc" },
       },
