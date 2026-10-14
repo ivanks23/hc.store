@@ -19,7 +19,22 @@ export default async function ProductImagesPage({ params }: PageProps) {
   const { productId } = await params;
   const product = await prisma.product.findUnique({
     where: { id: productId },
-    select: { id: true, name: true, slug: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      variants: {
+        orderBy: { sku: "asc" },
+        select: {
+          id: true,
+          sku: true,
+          isActive: true,
+          optionValues: {
+            select: { value: { select: { value: true, option: { select: { name: true } } } } },
+          },
+        },
+      },
+    },
   });
 
   if (!product) notFound();
@@ -35,7 +50,16 @@ export default async function ProductImagesPage({ params }: PageProps) {
           <h1 className="mt-2 text-3xl font-semibold text-brand-ink">Imágenes del producto</h1>
           <p className="mt-2 text-brand-muted">{product.name} · /{product.slug}</p>
         </div>
-        <ProductImagesManager productId={product.id} productName={product.name} />
+        <ProductImagesManager
+          productId={product.id}
+          productName={product.name}
+          variants={product.variants.map((variant) => ({
+            id: variant.id,
+            sku: variant.sku,
+            isActive: variant.isActive,
+            label: variant.optionValues.map(({ value }) => `${value.option.name}: ${value.value}`).join(" · "),
+          }))}
+        />
       </div>
     </main>
   );

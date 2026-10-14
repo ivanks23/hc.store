@@ -74,6 +74,7 @@ export async function PATCH(
       .pick({
         alt: true,
         position: true,
+        variantId: true,
       })
       .partial()
       .safeParse(body);
@@ -107,6 +108,14 @@ export async function PATCH(
         { error: "La imagen no existe para este producto" },
         { status: 404 },
       );
+    }
+
+    if (result.data.variantId) {
+      const variant = await prisma.productVariant.findFirst({
+        where: { id: result.data.variantId, productId },
+        select: { id: true },
+      });
+      if (!variant) return NextResponse.json({ error: "La variante no pertenece a este producto" }, { status: 400 });
     }
 
     const updatedImage = await prisma.productImage.update({

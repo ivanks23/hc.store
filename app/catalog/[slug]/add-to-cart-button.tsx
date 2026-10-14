@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useCartStore } from "@/lib/store/cart-store";
 
@@ -8,11 +8,13 @@ type AddToCartButtonProps = {
   productId: string;
   name: string;
   image: string | null;
+  onSelectedVariantChange?: (variantId: string | null) => void;
   variants: {
     id: string;
     sku: string;
     price: number;
     availableStock: number;
+    image: string | null;
     attributes: {
       value: string;
       attribute: { name: string };
@@ -25,6 +27,7 @@ export default function AddToCartButton({
   productId,
   name,
   image,
+  onSelectedVariantChange,
   variants,
 }: AddToCartButtonProps) {
   const addItem = useCartStore((state) => state.addItem);
@@ -44,6 +47,10 @@ export default function AddToCartButton({
   const selectedVariant = optionNames.length
     ? optionVariants.find((variant) => optionNames.every((name) => variant.optionValues?.some((item) => item.name === name && item.value === selectedOptions[name])))
     : variants.find((variant) => variant.id === selectedVariantId);
+
+  useEffect(() => {
+    onSelectedVariantChange?.(selectedVariant?.id ?? null);
+  }, [onSelectedVariantChange, selectedVariant?.id]);
 
   function getVariantLabel(variant: (typeof variants)[number]) {
     if (variant.optionValues?.length) {
@@ -75,7 +82,7 @@ export default function AddToCartButton({
       productId,
       name,
       price: selectedVariant.price,
-      image,
+      image: selectedVariant.image ?? image,
       quantity: 1,
       availableStock: selectedVariant.availableStock,
     });

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import AddToCartButton from "./add-to-cart-button";
-import ProductImageGallery from "./product-image-gallery";
+import ProductDetailClient from "./product-detail-client";
 
 import { getVariantStocks } from "@/lib/inventory";
 import { prisma } from "@/lib/prisma";
@@ -23,6 +22,7 @@ type ProductVariant = {
   availableStock: number;
   attributes: ProductAttribute[];
   optionValues: VariantOptionValue[];
+  images: ProductImage[];
 };
 
 type ProductImage = {
@@ -30,6 +30,7 @@ type ProductImage = {
   url: string;
   alt: string | null;
   position: number;
+  variantId: string | null;
 };
 
 type Product = {
@@ -78,11 +79,15 @@ async function getProduct(slug: string): Promise<Product | null> {
           optionValues: {
             select: { value: { select: { value: true, option: { select: { name: true } } } } },
           },
+          images: {
+            select: { id: true, url: true, alt: true, position: true, variantId: true },
+            orderBy: { position: "asc" },
+          },
         },
         orderBy: { sku: "asc" },
       },
       images: {
-        select: { id: true, url: true, alt: true, position: true },
+        select: { id: true, url: true, alt: true, position: true, variantId: true },
         orderBy: { position: "asc" },
       },
     },
@@ -129,8 +134,6 @@ export default async function ProductPage({
     );
   }
 
-  const mainImage = product.images[0];
-
   return (
     <main className="min-h-screen bg-brand-background px-4 py-10">
       <div className="mx-auto max-w-6xl">
@@ -141,49 +144,17 @@ export default async function ProductPage({
           ← Volver al catálogo
         </Link>
 
-        <div className="grid gap-8 rounded-xl border border-brand-border bg-white p-6 md:grid-cols-2">
-          <ProductImageGallery images={product.images} productName={product.name} />
-
-          <div>
-            <p className="text-sm text-brand-text-subtle">
-              {product.category.name}
-            </p>
-
-            <h1 className="mt-2 text-3xl font-bold text-brand-ink">
-              {product.name}
-            </h1>
-
-            {(product.brand || product.model) && (
-              <p className="mt-2 text-brand-text-subtle">
-                {[product.brand, product.model]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
-            )}
-
-            {product.description && (
-              <p className="mt-6 leading-7 text-brand-muted">
-                {product.description}
-              </p>
-            )}
-
-            {product.variants.length > 0 && (
-              <AddToCartButton
-                productId={product.id}
-                name={product.name}
-                image={mainImage?.url ?? null}
-                variants={product.variants.map((variant) => ({
-                  ...variant,
-                  price: Number(variant.price),
-                  optionValues: variant.optionValues.map(({ value }) => ({
-                    name: value.option.name,
-                    value: value.value,
-                  })),
-                }))}
-              />
-            )}
-          </div>
-        </div>
+        <ProductDetailClient product={{
+          ...product,
+          variants: product.variants.map((variant) => ({
+            ...variant,
+            price: Number(variant.price),
+            optionValues: variant.optionValues.map(({ value }) => ({
+              name: value.option.name,
+              value: value.value,
+            })),
+          })),
+        }} />
       </div>
     </main>
   );

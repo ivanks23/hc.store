@@ -102,11 +102,19 @@ export async function POST(
       );
     }
 
-    const { url, alt, position } = result.data;
+    const { url, alt, position, variantId } = result.data;
+    if (variantId) {
+      const variant = await prisma.productVariant.findFirst({
+        where: { id: variantId, productId },
+        select: { id: true },
+      });
+      if (!variant) return NextResponse.json({ error: "La variante no pertenece a este producto" }, { status: 400 });
+    }
 
     const image = await prisma.productImage.create({
       data: {
         productId,
+        variantId: variantId ?? null,
         url,
         alt,
         position,

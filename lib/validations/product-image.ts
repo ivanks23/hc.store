@@ -15,6 +15,7 @@ export const productImageSchema = z.object({
     .int("La posición debe ser un número entero")
     .min(0, "La posición no puede ser negativa")
     .default(0),
+  variantId: z.string().min(1).nullable().optional(),
 });
 
 export type ProductImageInput = z.infer<typeof productImageSchema>;
