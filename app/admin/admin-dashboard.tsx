@@ -316,9 +316,12 @@ export default function AdminDashboard() {
         </section>
 
         <section className="mt-8 rounded-2xl border border-brand-border bg-white p-6">
-          <div>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
             <h2 className="text-xl font-semibold text-brand-ink">Historial de movimientos</h2>
             <p className="mt-1 text-sm text-brand-muted">Últimos 50 registros, incluidas reposiciones, ajustes, devoluciones y ventas.</p>
+            </div>
+            <Link href="/admin/inventory" className="text-sm font-semibold text-brand-secondary hover:text-brand-ink">Ver historial completo →</Link>
           </div>
           {movements.length === 0 ? (
             <p className="mt-5 text-sm text-brand-muted">Aún no hay movimientos registrados.</p>

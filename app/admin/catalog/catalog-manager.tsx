@@ -47,8 +47,12 @@ export default function CatalogManager() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-brand-border pt-3 sm:col-span-2">
           <p className="text-sm font-semibold text-brand-secondary">Vista de productos</p>
           <div className="inline-flex rounded-lg border border-brand-border-strong bg-brand-background p-1" role="group" aria-label="Vista de productos">
-            <button type="button" aria-pressed={viewMode === "grid"} onClick={() => setViewMode("grid")} className={`rounded-md px-4 py-2 text-sm font-semibold ${viewMode === "grid" ? "bg-brand-ink text-white shadow-sm" : "text-brand-secondary hover:bg-white"}`}>Cuadrícula</button>
-            <button type="button" aria-pressed={viewMode === "list"} onClick={() => setViewMode("list")} className={`rounded-md px-4 py-2 text-sm font-semibold ${viewMode === "list" ? "bg-brand-ink text-white shadow-sm" : "text-brand-secondary hover:bg-white"}`}>Lista</button>
+            <button type="button" aria-label="Vista de cuadrícula" title="Vista de cuadrícula" aria-pressed={viewMode === "grid"} onClick={() => setViewMode("grid")} className={`rounded-md p-2.5 ${viewMode === "grid" ? "bg-brand-ink text-white shadow-sm" : "text-brand-secondary hover:bg-white"}`}>
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-5 w-5"><rect x="2.5" y="2.5" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.7"/><rect x="11.5" y="2.5" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.7"/><rect x="2.5" y="11.5" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.7"/><rect x="11.5" y="11.5" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.7"/></svg>
+            </button>
+            <button type="button" aria-label="Vista de lista" title="Vista de lista" aria-pressed={viewMode === "list"} onClick={() => setViewMode("list")} className={`rounded-md p-2.5 ${viewMode === "list" ? "bg-brand-ink text-white shadow-sm" : "text-brand-secondary hover:bg-white"}`}>
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-5 w-5"><path d="M7.5 4h9M7.5 10h9M7.5 16h9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><circle cx="3.5" cy="4" r="1" fill="currentColor"/><circle cx="3.5" cy="10" r="1" fill="currentColor"/><circle cx="3.5" cy="16" r="1" fill="currentColor"/></svg>
+            </button>
           </div>
         </div>
       </div>
