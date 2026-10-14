@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AddToCartButton from "./add-to-cart-button";
+import ProductImageGallery from "./product-image-gallery";
 
 import { getVariantStocks } from "@/lib/inventory";
 import { prisma } from "@/lib/prisma";
@@ -141,19 +142,7 @@ export default async function ProductPage({
         </Link>
 
         <div className="grid gap-8 rounded-xl border border-brand-border bg-white p-6 md:grid-cols-2">
-          <div className="aspect-square overflow-hidden rounded-lg bg-brand-image-surface">
-            {mainImage ? (
-              <img
-                src={mainImage.url}
-                alt={mainImage.alt ?? product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-brand-placeholder">
-                Sin imagen
-              </div>
-            )}
-          </div>
+          <ProductImageGallery images={product.images} productName={product.name} />
 
           <div>
             <p className="text-sm text-brand-text-subtle">

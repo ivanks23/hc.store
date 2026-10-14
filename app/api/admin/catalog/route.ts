@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getAdminSession } from "@/lib/admin-auth";
+import { getVariantStocks } from "@/lib/inventory";
 import { prisma } from "@/lib/prisma";
 import { adminProductSchema } from "@/lib/validations/admin";
 
@@ -16,17 +17,25 @@ export async function GET() {
         select: {
           id: true, name: true, slug: true, brand: true, model: true, description: true, isActive: true,
           categoryId: true, category: { select: { name: true } },
-          variants: { select: { id: true, sku: true, price: true }, orderBy: { sku: "asc" } },
+          variants: { select: { id: true, sku: true, price: true, isActive: true }, orderBy: { sku: "asc" } },
           images: { select: { id: true, url: true, alt: true, position: true }, orderBy: { position: "asc" } },
         },
       }),
     ]);
 
+    const variantStocks = await getVariantStocks(
+      products.flatMap((product) => product.variants.map((variant) => variant.id)),
+    );
+
     return NextResponse.json({
       categories,
       products: products.map((product) => ({
         ...product,
-        variants: product.variants.map((variant) => ({ ...variant, price: variant.price.toString() })),
+        variants: product.variants.map((variant) => ({
+          ...variant,
+          price: variant.price.toString(),
+          availableStock: variantStocks.get(variant.id) ?? 0,
+        })),
       })),
     });
   } catch (error) {
